@@ -5,15 +5,26 @@ public class Block {
     private long timeStamp;
     public String hash;
     public String prevHash;
+    private int nonce;
 
     public Block(String data, String prevHash) {
         this.prevHash = prevHash;
         this.data = data;
         this.timeStamp = System.currentTimeMillis();
-        this.hash = computeHash(data, timeStamp, prevHash);
+
+        this.hash = computeHash();
     }
 
-    private String computeHash(String data, long timeStamp, String prevHash) {
-        return SecurityHelper.getHash(data + Long.toString(timeStamp) + prevHash);
+    public String computeHash() {
+        return SecurityHelper.getHash(prevHash + Long.toString(timeStamp) + nonce + data);
+    }
+
+    public void mineBlock(int difficulty) {
+        String target = new String(new char[difficulty]).replace('\0', '0');
+        while(!hash.substring(0, difficulty).equals(target)) {
+            nonce++;
+            hash = computeHash();
+        }
+        System.out.println("New block mined : " + hash);
     }
 }
